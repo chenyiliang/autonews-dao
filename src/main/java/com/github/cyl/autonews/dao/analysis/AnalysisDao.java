@@ -11,8 +11,10 @@ import org.bson.Document;
 
 import com.github.cyl.autonews.dao.cpi.CPIDao;
 import com.github.cyl.autonews.pojo.analysis.Article;
+import com.github.cyl.autonews.pojo.analysis.Clause;
 import com.github.cyl.autonews.pojo.analysis.Paragraph;
 import com.github.cyl.autonews.pojo.analysis.Section;
+import com.github.cyl.autonews.pojo.analysis.Sentence;
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.Filters;
 
@@ -52,16 +54,16 @@ public class AnalysisDao {
 		List<Paragraph> paragraphs = new ArrayList<Paragraph>();
 		for (int i = 0; i < contents.size(); i++) {
 			String content = contents.get(i).toString();
-			List<String> sentences = new ArrayList<String>();
+			List<Sentence> sentences = new ArrayList<Sentence>();
 			if (content.contains("。")) {
 				String[] splits = content.split("。");
 				for (String split : splits) {
 					if (!split.trim().isEmpty()) {
-						sentences.add(split + "。");
+						sentences.add(new Sentence(split.trim() + "。", assembleClauses(split.split(","))));
 					}
 				}
 			} else {
-				sentences.add(content);
+				sentences.add(new Sentence(content));
 			}
 			paragraphs.add(new Paragraph(sentences));
 		}
@@ -71,7 +73,7 @@ public class AnalysisDao {
 		sectionSplitIndexs.add(0);
 		for (int i = 0; i < paragraphs.size(); i++) {
 			Paragraph paragraph = paragraphs.get(i);
-			String sentence = paragraph.getSentences().get(0);
+			String sentence = paragraph.getSentences().get(0).getSentence();
 			if (isSubTitle(sentence)) {
 				sectionSplitIndexs.add((i));
 			}
@@ -87,11 +89,20 @@ public class AnalysisDao {
 			if (i == 0) {
 				sections.add(new Section(null, subList));
 			} else {
-				sections.add(new Section(subList.get(0).getSentences().get(0), subList.subList(1, subList.size())));
+				sections.add(new Section(subList.get(0).getSentences().get(0).getSentence(),
+						subList.subList(1, subList.size())));
 			}
 		}
 		article.setSectinos(sections);
 		return article;
+	}
+
+	private List<Clause> assembleClauses(String[] arr) {
+		List<Clause> clauses = new ArrayList<Clause>();
+		for (String str : arr) {
+			clauses.add(new Clause(str));
+		}
+		return clauses;
 	}
 
 	private boolean isSubTitle(String sentence) {
