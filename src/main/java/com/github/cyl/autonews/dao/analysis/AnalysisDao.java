@@ -36,6 +36,7 @@ public class AnalysisDao {
 	private static MongoClient client = new MongoClient(MONGO_HOST, MONGO_PORT);
 
 	private List<String> SUBTITLE_MARKS = Arrays.asList("一、", "二、");
+	private String CLAUSE_SPLITER = ",|，|;|；|:|：";
 
 	@SuppressWarnings("unchecked")
 	public Article getOneAnalysisArticle(int year, int month) {
@@ -59,7 +60,7 @@ public class AnalysisDao {
 				String[] splits = content.split("。");
 				for (String split : splits) {
 					if (!split.trim().isEmpty()) {
-						sentences.add(new Sentence(split.trim() + "。", assembleClauses(split.split(","))));
+						sentences.add(new Sentence(split.trim() + "。", assembleClauses(split.split(CLAUSE_SPLITER))));
 					}
 				}
 			} else {
