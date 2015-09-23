@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.apdplat.word.WordSegmenter;
 import org.bson.Document;
 
 import com.github.cyl.autonews.dao.cpi.CPIDao;
@@ -60,7 +61,10 @@ public class AnalysisDao {
 				String[] splits = content.split("。");
 				for (String split : splits) {
 					if (!split.trim().isEmpty()) {
-						sentences.add(new Sentence(split.trim() + "。", assembleClauses(split.split(CLAUSE_SPLITER))));
+						Sentence sentence = new Sentence(split.trim() + "。",
+								assembleClauses(split.split(CLAUSE_SPLITER)));
+						sentence.setWords(WordSegmenter.segWithStopWords(sentence.getSentence()));
+						sentences.add(sentence);
 					}
 				}
 			} else {
@@ -101,7 +105,7 @@ public class AnalysisDao {
 	private List<Clause> assembleClauses(String[] arr) {
 		List<Clause> clauses = new ArrayList<Clause>();
 		for (String str : arr) {
-			clauses.add(new Clause(str));
+			clauses.add(new Clause(str, WordSegmenter.segWithStopWords(str), 0));
 		}
 		return clauses;
 	}
