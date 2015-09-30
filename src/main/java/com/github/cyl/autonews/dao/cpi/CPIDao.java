@@ -171,9 +171,9 @@ public class CPIDao {
 	}
 
 	private Indicator convertFromFieldAndList(String fieldName, List<Double> list) {
-		if (list.size() == 3) {
+		if (list != null && list.size() == 3) {
 			return new Indicator(fieldName, list.get(0), list.get(1), list.get(2));
-		} else if (list.size() == 2) {
+		} else if (list != null && list.size() == 2) {
 			return new Indicator(fieldName, list.get(0), list.get(1));
 		} else {
 			return null;
